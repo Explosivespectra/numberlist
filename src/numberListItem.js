@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useState} from "react";
 import { makeStyles } from '@material-ui/core/styles';
 
 import { ListItem, ListItemIcon, ListItemSecondaryAction } from "@material-ui/core";
@@ -19,7 +19,7 @@ const useStyles = makeStyles({
   },
 });
 
-const NumberListItem = ({item, checkEvent, closeEvent}) => {
+const NumberListItem = ({item, checkEvent, closeEvent, isChecked}) => {
  const classes = useStyles();
   const sendDeleteItem = () => {
     closeEvent(item);
@@ -28,7 +28,7 @@ const NumberListItem = ({item, checkEvent, closeEvent}) => {
   return (
         <ListItem key={item} divider={true} className={classes.listItem}>
           <ListItemIcon>
-            <Checkbox onChange={event => checkEvent(event.target.checked, item)}/>
+            <Checkbox checked = {isChecked} onChange={(event) => {checkEvent(event.target.checked, item)}}/>
           </ListItemIcon>
           Number {item}
           <ListItemSecondaryAction className={classes.closeIcon}>

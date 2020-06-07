@@ -21,6 +21,29 @@ const useStyles = makeStyles({
   },
 });
 
+const AddDialog = ({onClose, errorState, errorText, addEvent, dialogOpen}) => {
+  const [inputValue, setInputVal] = useState("");
+
+  const handleClose = () => {
+    onClose();
+  };
+
+  const sendInput = () => {
+    addEvent(inputValue);
+  };
+
+  return (
+    <Dialog open={dialogOpen} onClose={handleClose}>
+      <DialogTitle>Add a number</DialogTitle>
+      <TextField label="0-9999" value={inputValue} error={errorState} helperText={errorText} onChange={(event) => (setInputVal(event.target.value === "" ||
+      isNaN(event.target.value) ? (event.target.value === "" ? "" : inputValue) : parseInt(event.target.value)))}/>
+      <div>
+        <Button onClick={() => {setInputVal(""); handleClose();}}>Cancel</Button>
+        <Button onClick={sendInput}>Confirm</Button>
+      </div>
+    </Dialog>
+  );
+};
 
 const ListCard = () => {
   const classes = useStyles;
@@ -32,7 +55,6 @@ const ListCard = () => {
   const [deleteList, alterDeleteList] = useState([]);
   const [errorState, setErrorState] = useState(false);
   const [errorText, setErrorMessage] = useState("");
-  const [inputValue, setInputVal] = useState("");
   const [dialogOpen, setDialogOpen] = useState(false);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState([]);
@@ -48,8 +70,8 @@ const ListCard = () => {
   };
 
   const deleteItem = (item) => {
-    alterListItems(items.filter(currItem => (currItem!==item)));
-    alterDeleteList(deleteList.filter(currItem => (currItem!==item)));
+    alterListItems(items.filter(currItem => (currItem !== item)));
+    alterDeleteList(deleteList.filter((currItem) => (currItem !== item)));
     adjustLength(listLength - 1);
   };
 
@@ -59,29 +81,28 @@ const ListCard = () => {
     alterDeleteList([]);
   };
 
-  const addItem = () => {
-    alterListItems(sort(listOrder ? ((a, b) => (a - b)) : ((a, b) => ((a - b) * -1)), items.concat([inputValue])));
+  const addItem = (value) => {
+    alterListItems(sort(listOrder ? ((a, b) => (a - b)) : ((a, b) => ((a - b) * -1)), items.concat([value])));
     adjustLength(listLength + 1);
-    setSnackbarMessage("Number ".concat(inputValue).concat(" successfully added"));
+    setSnackbarMessage("Number ".concat(value).concat(" successfully added"));
     setSnackbarOpen(true);
   };
 
-  const validateAndAdd = () => {
-    if (inputValue === "" || isNaN(inputValue) || inputValue > 9999 || inputValue < 0) {
+  const validateAndAdd = (value) => {
+    if (value === "" || isNaN(value) || value > 9999 || value < 0) {
 
       setErrorMessage("Value must be 0-9999");
       setErrorState(true);
     }
     else {
-      if (items.includes(inputValue)) {
+      if (items.includes(value)) {
         setErrorMessage("Value already in list");
         setErrorState(true);
       }
       else {
         setErrorMessage("");
         setErrorState(false);
-        addItem();
-        setInputVal("");
+        addItem(value);
         setDialogOpen(false);
       }
     }
@@ -93,39 +114,40 @@ const ListCard = () => {
   };
 
   return (
-    <Container maxWidth={'xs'} fixed={'true'} className={classes.list}>
-      <List>
-        <ListSubheader>
-            My Numbers ({listLength})
-            <IconButton onClick={reorder}>
-              <ReorderIcon/>
-            </IconButton>
-            <IconButton onClick={deleteMultipleItems}>
-              <DeleteIcon/>
-            </IconButton>
-            <IconButton onClick={() => (setDialogOpen(true))}>
-              <AddBoxIcon/>
-            </IconButton>
-          {items.map((item) => (
-            <NumberListItem
-              item={item}
-              checkEvent={incrementOrDecrementDeletionList}
-              closeEvent={deleteItem}
-            />
-          ))}
-        </ListSubheader>
-      </List>
-      <Dialog open={dialogOpen} onClose={() => (setDialogOpen(false))}>
-        <DialogTitle>Add a number</DialogTitle>
-        <TextField label="0-9999" value={inputValue} error={errorState} helperText={errorText} onChange={(event) => (setInputVal(event.target.value === "" ||
-        isNaN(event.target.value) ? (event.target.value === "" ? "" : inputValue) : parseInt(event.target.value)))}/>
-        <div>
-          <Button onClick={() => {setInputVal(""); setErrorMessage(""); setErrorState(false); setDialogOpen(false)}}>Cancel</Button>
-          <Button onClick={validateAndAdd}>Confirm</Button>
-        </div>
-      </Dialog>
+    <div>
+      <Container maxWidth={'xs'} fixed={'true'} className={classes.list}>
+        <List>
+          <ListSubheader>
+              My Numbers ({listLength})
+              <IconButton onClick={reorder}>
+                <ReorderIcon/>
+              </IconButton>
+              <IconButton onClick={deleteMultipleItems}>
+                <DeleteIcon/>
+              </IconButton>
+              <IconButton onClick={() => (setDialogOpen(true))}>
+                <AddBoxIcon/>
+              </IconButton>
+            {items.map((item) => (
+              <NumberListItem
+                item={item}
+                checkEvent={incrementOrDecrementDeletionList}
+                closeEvent={deleteItem}
+                isChecked={deleteList.includes(item)}
+              />
+            ))}
+          </ListSubheader>
+        </List>
+      </Container>
+      <AddDialog
+        onClose={() => {setDialogOpen(false); setErrorMessage(""); setErrorState(false);}}
+        errorState={errorState}
+        errorText={errorText}
+        addEvent={validateAndAdd}
+        dialogOpen={dialogOpen}
+      />
       <Snackbar open={snackbarOpen} message={snackbarMessage} onClose={() =>(setSnackbarOpen(false))}/>
-    </Container>
+    </div>
   );
 };
 
