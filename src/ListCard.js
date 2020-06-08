@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { makeStyles } from '@material-ui/core/styles';
 
-import { Container, List, ListSubheader, Dialog, DialogTitle, TextField, Snackbar, Button, IconButton } from "@material-ui/core";
+import { Container, List, ListSubheader, Dialog, DialogTitle, DialogContent, DialogActions, TextField, Snackbar, Button, IconButton } from "@material-ui/core";
 import DeleteIcon from "@material-ui/icons/Delete";
 import AddBoxIcon from '@material-ui/icons/AddBox';
 import ReorderIcon from '@material-ui/icons/Reorder';
@@ -10,15 +10,24 @@ import NumberListItem from "./numberListItem.js";
 
 
 const useStyles = makeStyles({
-    list: {
-      width: '100%',
-      maxWidth: 350,
-      marginTop: 100,
-      maxHeight: 400,
-      margin: 'auto',
-      overflow: 'auto',
-      backgroundColor: '#fff',
+  list: {
+    width: '100%',
+    maxWidth: 350,
+    marginTop: 100,
+    maxHeight: 400,
+    margin: 'auto',
+    overflow: 'auto',
+    background: 'inherit',
   },
+
+  subheader: {
+    background: 'primary',
+  },
+
+  listItem: {
+    background: 'inherit',
+  }
+
 });
 
 const AddDialog = ({onClose, errorState, errorText, addEvent, dialogOpen}) => {
@@ -35,12 +44,14 @@ const AddDialog = ({onClose, errorState, errorText, addEvent, dialogOpen}) => {
   return (
     <Dialog open={dialogOpen} onClose={handleClose}>
       <DialogTitle>Add a number</DialogTitle>
-      <TextField label="0-9999" value={inputValue} error={errorState} helperText={errorText} onChange={(event) => (setInputVal(event.target.value === "" ||
-      isNaN(event.target.value) ? (event.target.value === "" ? "" : inputValue) : parseInt(event.target.value)))}/>
-      <div>
+      <DialogContent>
+        <TextField label="0-9999" value={inputValue} error={errorState} helperText={errorText} onChange={(event) => (setInputVal(event.target.value === "" ||
+        isNaN(event.target.value) ? (event.target.value === "" ? "" : inputValue) : parseInt(event.target.value)))}/>
+      </DialogContent>
+      <DialogActions>
         <Button onClick={() => {setInputVal(""); handleClose();}}>Cancel</Button>
         <Button onClick={sendInput}>Confirm</Button>
-      </div>
+      </DialogActions>
     </Dialog>
   );
 };
@@ -115,28 +126,31 @@ const ListCard = () => {
 
   return (
     <div>
-      <Container maxWidth={'xs'} fixed={'true'} className={classes.list}>
+      <Container maxWidth={'xs'} fixed={true} className={classes.list}>
         <List>
-          <ListSubheader>
-              My Numbers ({listLength})
-              <IconButton onClick={reorder}>
-                <ReorderIcon/>
-              </IconButton>
-              <IconButton onClick={deleteMultipleItems}>
-                <DeleteIcon/>
-              </IconButton>
-              <IconButton onClick={() => (setDialogOpen(true))}>
-                <AddBoxIcon/>
-              </IconButton>
-            {items.map((item) => (
-              <NumberListItem
-                item={item}
-                checkEvent={incrementOrDecrementDeletionList}
-                closeEvent={deleteItem}
-                isChecked={deleteList.includes(item)}
-              />
-            ))}
+          <ListSubheader
+            style={{backgroundColor: "#acb946"}}>
+            My Numbers ({listLength})
+            <IconButton onClick={reorder}>
+              <ReorderIcon/>
+            </IconButton>
+            <IconButton onClick={deleteMultipleItems}>
+              <DeleteIcon/>
+            </IconButton>
+            <IconButton onClick={() => (setDialogOpen(true))}>
+              <AddBoxIcon/>
+            </IconButton>
           </ListSubheader>
+          {items.map((item) => (
+            <NumberListItem
+              className={classes.listItem}
+              key={item}
+              item={item}
+              checkEvent={incrementOrDecrementDeletionList}
+              closeEvent={deleteItem}
+              isChecked={deleteList.includes(item)}
+            />
+          ))}
         </List>
       </Container>
       <AddDialog
