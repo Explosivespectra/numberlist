@@ -26,4 +26,4 @@ When Hover List Item
 
 ## Access project
 
-Can be accessed at https://github.com/Explosivespectra
+Can be accessed at https://explosivespectra.github.io/numberlist/
